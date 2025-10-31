@@ -7,9 +7,9 @@ export const signUpSchema = z
     name: z.string().min(3).max(30),
     email: z.email(),
     password: passwordSchema,
-    passwordVerification: passwordSchema,
+    confirmPassword: passwordSchema,
   })
-  .refine((v) => v.password === v.passwordVerification, {
+  .refine((v) => v.password === v.confirmPassword, {
     message: 'needed to be same as password',
     path: ['passwordVerification'],
   });

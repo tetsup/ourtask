@@ -1,17 +1,18 @@
 'use client';
 import { z } from 'zod';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Backdrop, Typography } from '@mui/material';
 import { authClient } from '@/auth/client';
 import { signUpSchema } from '@/auth/signUpSchema';
+import { useLanguage } from '@/i18n/provider';
 import { FormLayout } from '../common/layouts/FormLayout';
 import {
   CommonPasswordField,
   CommonTextField,
 } from '../common/parts/CommonInput';
 import { CommonButton } from '../common/parts/CommonButton';
-import { Backdrop, Typography } from '@mui/material';
-import { useState } from 'react';
 import { CommonLink } from '../common/parts/CommonLink';
 
 type SignUpInfo = z.infer<typeof signUpSchema>;
@@ -19,6 +20,7 @@ type SignUpInfo = z.infer<typeof signUpSchema>;
 type FormStatus = 'editing' | 'confirming' | 'succeeded';
 
 export const SignUpForm = () => {
+  const { t } = useLanguage();
   const [status, setStatus] = useState<FormStatus>('editing');
   const [errorMessage, setErrorMessage] = useState<string>();
   const {
@@ -45,7 +47,7 @@ export const SignUpForm = () => {
     <>
       <Backdrop open={status === 'confirming'} />
       <FormLayout>
-        <Typography variant="h5">サインアップ</Typography>
+        <Typography variant="h5">{t.auth.signUp}</Typography>
         {status !== 'succeeded' ? (
           <>
             <Typography variant="h6" color="red">
@@ -53,30 +55,32 @@ export const SignUpForm = () => {
             </Typography>
             <form onSubmit={handleSubmit(handleSignUp)}>
               <CommonTextField
-                label="ユーザー名"
+                label={t.user.name}
                 errorInfo={errors.name}
                 {...register('name')}
               />
               <CommonTextField
-                label="メールアドレス"
+                label={t.user.email}
                 errorInfo={errors.email}
                 {...register('email')}
               />
               <CommonPasswordField
-                label="パスワード"
+                label={t.user.password}
                 {...register('password')}
               />
               <CommonPasswordField
-                label="パスワード確認"
-                {...register('passwordVerification')}
+                label={t.user.confirmPassword}
+                {...register('confirmPassword')}
               />
-              <CommonButton type="submit">Sign Up</CommonButton>
+              <CommonButton type="submit">{t.auth.signUp}</CommonButton>
             </form>
           </>
         ) : (
           <>
-            <Typography variant="h6">ユーザーが作成されました</Typography>
-            <CommonLink href="/">ホームに戻る</CommonLink>
+            <Typography variant="h6">
+              {t.message.created(t.common.theUser)}
+            </Typography>
+            <CommonLink href="/">{t.common.backTo(t.common.home)}</CommonLink>
           </>
         )}
       </FormLayout>

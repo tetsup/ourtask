@@ -8,10 +8,12 @@ import {
   CommonTextField,
 } from '../common/parts/CommonInput';
 import { CommonLink } from '../common/parts/CommonLink';
+import { useLanguage } from '@/i18n/provider';
 
 type SignInInfo = { email: string; password: string };
 
 export const SignInForm = () => {
+  const { t } = useLanguage();
   const { handleSubmit, register } = useForm({
     defaultValues: { email: '', password: '' },
   });
@@ -22,15 +24,15 @@ export const SignInForm = () => {
   return (
     <FormLayout>
       <form onSubmit={handleSubmit(handleSignIn)}>
-        <CommonTextField label="メールアドレス" {...register('email')} />
+        <CommonTextField label={t.user.email} {...register('email')} />
         <CommonPasswordField
-          label="パスワード"
+          label={t.user.password}
           {...register('password')}
           type="password"
         />
         <SignInButton />
       </form>
-      <CommonLink href="/signUp">ユーザー登録はこちら</CommonLink>
+      <CommonLink href="/signUp">{t.auth.signUp}</CommonLink>
     </FormLayout>
   );
 };
