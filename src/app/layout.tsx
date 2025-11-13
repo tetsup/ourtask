@@ -1,6 +1,8 @@
-import { LanguageProvider } from '@/i18n/provider';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { AlertProvider } from '@/contexts/Alert';
+import { BackdropProvider } from '@/contexts/BackDrop';
+import { LanguageProvider } from '@/i18n/provider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -26,7 +28,9 @@ export default function RootLayout({
     <LanguageProvider initialLang="ja">
       <html lang="ja">
         <body className={`${geistSans.variable} ${geistMono.variable}`}>
-          {children}
+          <AlertProvider>
+            <BackdropProvider>{children}</BackdropProvider>
+          </AlertProvider>
         </body>
       </html>
     </LanguageProvider>

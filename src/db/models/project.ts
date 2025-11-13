@@ -1,8 +1,9 @@
 'use server';
 import z from 'zod';
 import { NextRequest } from 'next/server';
-import { api, needLogin, Validation } from '../func';
-import { projectSchema } from '../schemas/project';
+import { Document } from 'mongodb';
+import { api, DbExecuteParams, needLogin, Validation } from '../func';
+import { projectSchema } from '../schemas/server/project';
 import { collection, withTransaction } from '../setup';
 
 type Project = z.infer<typeof projectSchema>;
@@ -20,7 +21,35 @@ const apiPostValidation: Validation<PostParams> = {
     params.data.ownerIds.some((ownerId) => ownerId.equals(authInfo?.user.id));
   },
 };
-
+const apiGetListAggregater = ({
+  authInfo,
+}: DbExecuteParams<any>): Document[] => [
+  {
+    $match: {
+      $or: [
+        {
+          ownerIds: { $in: [authInfo?.user.id] },
+        },
+      ],
+    },
+  },
+  {
+    $lookup: {
+      from: 'Users',
+      localField: 'ownerIds',
+      foreignField: '_id',
+      as: 'owners',
+    },
+  },
+  {
+    $lookup: {
+      from: 'Users',
+      localField: 'assignees.userId',
+      foreignField: '_id',
+      as: 'assignees.user',
+    },
+  },
+];
 export const apiGetList = async (req: NextRequest) =>
   await withTransaction(
     async (session) =>
@@ -28,19 +57,9 @@ export const apiGetList = async (req: NextRequest) =>
         req,
         session,
         validation: apiGetListValidation,
-        execute: async ({ session, authInfo }) =>
+        execute: async (params) =>
           await collection('Projects')
-            .find(
-              {
-                $or: [
-                  {
-                    ownerIds: { $in: [authInfo?.user.id] },
-                  },
-                  { 'assignees.userId': { $in: [authInfo?.user.id] } },
-                ],
-              },
-              { session }
-            )
+            .aggregate(apiGetListAggregater(params), { session })
             .toArray(),
       })
   );

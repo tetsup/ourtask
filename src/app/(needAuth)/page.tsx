@@ -1,7 +1,5 @@
+import { CommonLink } from '@/components/common/parts/CommonLink';
+
 export default function Home() {
-  return (
-    <main>
-      <p>start page</p>
-    </main>
-  );
+  return <CommonLink href="/project">Project</CommonLink>;
 }

@@ -19,6 +19,8 @@ export const en = {
     theUser: 'the user',
     debug: 'Debug',
     home: 'Home',
+    append: 'Append',
+    role: 'Role',
     openThe: (thing: string) => `Open the ${thing}`,
     succeeded: (thing: string) => `Succeeded to ${thing}`,
     failed: (thing: string) => `Failed to ${thing}`,

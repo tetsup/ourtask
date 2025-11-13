@@ -19,6 +19,8 @@ export const ja = {
     theUser: 'ユーザー',
     debug: 'デバッグ',
     home: 'ホーム',
+    append: '追加',
+    role: '役割',
     openThe: (thing: string) => `${thing}を開く`,
     succeeded: (thing: string) => `${thing}に成功しました`,
     failed: (thing: string) => `${thing}に失敗しました`,

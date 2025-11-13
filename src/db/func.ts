@@ -71,7 +71,7 @@ type ApiParams<T> = {
   session?: ClientSession;
 };
 
-type DbExecuteParams<T> = {
+export type DbExecuteParams<T> = {
   params: T;
   authInfo: AuthInfo | null;
   session?: ClientSession;
