@@ -21,18 +21,18 @@ const avatarSchema = z.object({
   name: z.string().min(3).max(40),
 });
 
-export const getUserOptionSchema =
-  ({ existingObjectSchema }: SchemaRule) =>
-  (sessionSet: SessionSet) =>
+export const getUserOptionSchema: SchemaFuncBuilder<any, any> =
+  ({ joinUserSchema }) =>
+  (schemaParams) =>
     z.object({
-      user: existingObjectSchema(sessionSet),
+      user: joinUserSchema(schemaParams),
     });
 
-export const postUserOptionSchema =
-  ({ existingObjectSchema }: SchemaRule) =>
-  (sessionSet: SessionSet) =>
+export const postUserOptionSchema: SchemaFuncBuilder<any, any> =
+  ({ joinUserSchema }) =>
+  (schemaParams) =>
     z.object({
-      user: existingObjectSchema(sessionSet),
+      user: joinUserSchema(schemaParams),
       lang: z.enum(Object.keys(languages)).default('ja'),
       avatar: avatarSchema.optional(),
       image: z.url().optional(),

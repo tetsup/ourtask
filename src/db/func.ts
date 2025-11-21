@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
 import { Session, User } from 'better-auth';
 import { auth } from '@/auth/server';
 import { handleError, UnAuthorizedError, UnprocessableError } from './errors';
-import { serverRule } from './rules/server';
-
-type Schema<Z extends z.ZodType<any>> = (sessionSet: SessionSet) => Z;
+import { serverRules } from './rules/server';
 
 export type AuthInfo = { session: Session; user: User };
 
@@ -17,16 +14,16 @@ type PermissionParams<T> = {
 
 type Permission<T> = AsyncFunc<PermissionParams<T>, void>;
 
-type ApiParams<Z extends z.ZodType<any>> = {
+type ApiParams<T extends any> = {
   req: NextRequest;
-  execute: DbExecute<z.infer<Z>>;
-  schema: (rule: SchemaRule) => Schema<Z>;
-  authorize: Permission<z.infer<Z>>;
+  execute: DbExecute<T>;
+  schema: SchemaFuncBuilder<any, T>;
+  authorize: Permission<T>;
   sessionSet: SessionSet;
 };
 
-export type Api<Z extends z.ZodType<any>> = (
-  params: ApiParams<Z>
+export type Api<T extends any> = (
+  params: ApiParams<T>
 ) => Promise<NextResponse>;
 
 export type DbExecuteParams<T> = {
@@ -49,7 +46,7 @@ const readParams = async (req: NextRequest) => {
   }
 };
 
-export const api: Api<z.ZodType<any>> = async ({
+export const api: Api<any> = async ({
   req,
   execute,
   schema,
@@ -59,7 +56,7 @@ export const api: Api<z.ZodType<any>> = async ({
   await handleError(async () => {
     const params = await readParams(req);
     const parsedParams =
-      await schema(serverRule)(sessionSet).parseAsync(params);
+      await schema(serverRules)(sessionSet).parseAsync(params);
     const authInfo = await auth.api.getSession({ headers: req.headers });
     await authorize({ authInfo, params, sessionSet });
     const res = await execute({ params: parsedParams, authInfo, sessionSet });

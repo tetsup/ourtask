@@ -4,13 +4,20 @@ type SessionSet = { db: Db; session: ClientSession };
 
 type ModelParams = { collectionName: string; apiPath: string };
 
-type SchemaParams = {
-  modelParams: ModelParams;
-  sessionSet: SessionSet;
+type SchemaParams = { sessionSet: SessionSet } | {};
+
+type SchemaFunc<T extends SchemaParams, U extends any> = (
+  params: T
+) => z.Schema<U>;
+
+type SchemaRule<T extends SchemaParams> = (params: T) => z.Schema;
+
+type SchemaRules<T> = {
+  joinUserSchema: SchemaRule<T>;
 };
 
-type SchemaRule = {
-  existingObjectSchema: z.ZodSchema;
-};
+type SchemaFuncBuilder<T extends SchemaParams, U extends any> = (
+  schemarules: SchemaRules<T>
+) => SchemaFunc<T, U>;
 
 type ExistingObject = { _id: ObjectId };

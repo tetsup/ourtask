@@ -1,6 +1,7 @@
 'use server';
 import { ObjectId } from 'mongodb';
 import z from 'zod';
+import { User } from '../params/user';
 
 const idSchema: z.ZodType<ObjectId> = z.union([
   z
@@ -10,17 +11,14 @@ const idSchema: z.ZodType<ObjectId> = z.union([
   z.instanceof(ObjectId),
 ]);
 
-const existingObjectSchema = ({
-  modelParams: { collectionName },
-  sessionSet: { db, session },
-}: SchemaParams) =>
+const joinUserSchema: SchemaRule<SessionSet> = ({ db, session }) =>
   z
     .object({ _id: idSchema })
     .refine(
       async (v) =>
         (await db
-          .collection(collectionName)
+          .collection(User.collectionName)
           .findOne({ _id: v._id }, { session })) != null
     );
 
-export const serverRule: SchemaRule = { existingObjectSchema };
+export const serverRules: SchemaRules<SessionSet> = { joinUserSchema };

@@ -8,27 +8,24 @@ export const Project: ModelParams = {
 
 export const roles = ['maintainer', 'reviewer', 'reporter', 'viewer'] as const;
 
-const roleSchema = z.enum(roles);
+export const roleSchema = z.enum(roles);
 
-const assignmentSchema =
-  ({ existingObjectSchema }: SchemaRule) =>
-  (sessionSet: SessionSet) =>
+const assignmentSchema: SchemaFuncBuilder<any, any> =
+  ({ joinUserSchema }) =>
+  (schemaParams) =>
     z.object({
-      assignee: existingObjectSchema({ sessionSet, modelParams: User }),
+      assignee: joinUserSchema(schemaParams),
       role: roleSchema,
     });
 
-export const postProjectSchema =
-  ({ existingObjectSchema }: SchemaRule) =>
-  (sessionSet: SessionSet) =>
+export const postProjectSchema: SchemaFuncBuilder<any, any> =
+  (schemaRules) => (schemaParams) =>
     z.object({
       name: z.string().min(1).max(20),
       description: z.string().max(1000).optional(),
-      owners: z.array(existingObjectSchema({ sessionSet, modelParams: User })),
-      assignments: z.array(
-        assignmentSchema({ existingObjectSchema })(sessionSet)
-      ),
+      owners: z.array(schemaRules.joinUserSchema(schemaParams)),
+      assignments: z.array(assignmentSchema(schemaRules)(schemaParams)),
     });
 
-export const getProjectListSchema = (_: SchemaRule) => (_: SessionSet) =>
+export const getProjectListSchema: SchemaFuncBuilder<any, any> = () => () =>
   z.never();

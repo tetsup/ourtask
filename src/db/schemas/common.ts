@@ -1,4 +1,4 @@
 import z from 'zod';
 
-export const queryWordSchema = (_: SchemaRule) => (_: SessionSet) =>
+export const queryWordSchema: SchemaFuncBuilder<any, any> = (_) => (_) =>
   z.object({ word: z.string() });
