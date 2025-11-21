@@ -1,44 +1,17 @@
 import { NextRequest } from 'next/server';
 import { ObjectId } from 'mongodb';
-import { withSession, withTransaction } from '@/db/setup';
+import { withTransaction } from '@/db/setup';
 import { apiPost } from '@/db/models/project';
-import { UserFactory } from '../../factories/user.factory';
-import { ProjectFactory } from '../../factories/project.factory';
 import { Project } from '@/db/params/project';
 import { auth } from '@/auth/server';
-import { User } from '@/db/params/user';
-import { AuthInfo } from '@/db/func';
-
-const createUser = async (params?: any) => {
-  const user = new UserFactory(params).build();
-  const { insertedId: userId } = await withSession(({ db }) =>
-    db.collection('Users').insertOne(user)
-  );
-  return userId;
-};
-
-const dummyAuthInfo = async (userId: ObjectId): Promise<AuthInfo> => {
-  const { _id, ...user } = await withSession(({ db, session }) =>
-    db.collection(User.collectionName).findOne({ _id: userId }, { session })
-  );
-  return {
-    user: { ...user, id: _id.toString() },
-    session: {
-      id: new ObjectId().toString(),
-      userId: userId.toString(),
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      expiresAt: user.expiresAt,
-      token: '',
-    },
-  };
-};
+import { ProjectFactory } from '../../factories/project.factory';
+import { createDummyUsersInDb } from '../../factories/user.factory';
+import { dummyAuthInfo } from '../../mocks/auth';
 
 describe('postProject', () => {
   let userIds: ObjectId[];
   beforeEach(async () => {
-    userIds = [...Array(10)].map(() => new ObjectId());
-    await Promise.all(userIds.map((_id) => createUser({ _id })));
+    userIds = await createDummyUsersInDb(5);
   });
   test('unauthorized', async () => {
     jest.spyOn(auth.api, 'getSession').mockResolvedValue(null);
@@ -54,6 +27,7 @@ describe('postProject', () => {
     expect(res.ok).toBeFalsy();
     expect(res.status).toEqual(401);
   });
+
   test('inserted', async () => {
     jest
       .spyOn(auth.api, 'getSession')
