@@ -11,7 +11,7 @@ const idSchema: z.ZodType<ObjectId> = z.union([
   z.instanceof(ObjectId),
 ]);
 
-const joinUserSchema: SchemaRule<SessionSet> = ({ db, session }) =>
+const joinUserSchema: SchemaFunc<SessionSet, any> = ({ db, session }) =>
   z
     .object({ _id: idSchema })
     .refine(

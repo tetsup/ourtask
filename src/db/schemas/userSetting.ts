@@ -23,14 +23,14 @@ const avatarSchema = z.object({
 
 export const getUserOptionSchema: SchemaFuncBuilder<any, any> =
   ({ joinUserSchema }) =>
-  (schemaParams) =>
+  (schemaParams: SchemaParams) =>
     z.object({
       user: joinUserSchema(schemaParams),
     });
 
 export const postUserOptionSchema: SchemaFuncBuilder<any, any> =
   ({ joinUserSchema }) =>
-  (schemaParams) =>
+  (schemaParams: SchemaParams) =>
     z.object({
       user: joinUserSchema(schemaParams),
       lang: z.enum(Object.keys(languages)).default('ja'),

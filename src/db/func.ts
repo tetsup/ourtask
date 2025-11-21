@@ -6,25 +6,23 @@ import { serverRules } from './rules/server';
 
 export type AuthInfo = { session: Session; user: User };
 
-type PermissionParams<T> = {
+type AuthorizeParams<T> = {
   authInfo: AuthInfo | null;
   params: T;
   sessionSet: SessionSet;
 };
 
-type Permission<T> = AsyncFunc<PermissionParams<T>, void>;
+type Authorize<T> = AsyncFunc<AuthorizeParams<T>, void>;
 
-type ApiParams<T extends any> = {
+export type ApiParams<T> = {
   req: NextRequest;
   execute: DbExecute<T>;
   schema: SchemaFuncBuilder<any, T>;
-  authorize: Permission<T>;
+  authorize: Authorize<T>;
   sessionSet: SessionSet;
 };
 
-export type Api<T extends any> = (
-  params: ApiParams<T>
-) => Promise<NextResponse>;
+export type Api<T> = (params: ApiParams<T>) => Promise<NextResponse>;
 
 export type DbExecuteParams<T> = {
   params: T;
@@ -58,11 +56,11 @@ export const api: Api<any> = async ({
     const parsedParams =
       await schema(serverRules)(sessionSet).parseAsync(params);
     const authInfo = await auth.api.getSession({ headers: req.headers });
-    await authorize({ authInfo, params, sessionSet });
+    await authorize({ authInfo, params: parsedParams, sessionSet });
     const res = await execute({ params: parsedParams, authInfo, sessionSet });
     return NextResponse.json(res, { status: 200 });
   });
 
-export const needLogin: Permission<any> = async ({ authInfo }) => {
+export const needLogin: Authorize<any> = async ({ authInfo }) => {
   if (authInfo == null || authInfo.user == null) throw new UnAuthorizedError();
 };

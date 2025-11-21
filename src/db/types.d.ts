@@ -4,20 +4,16 @@ type SessionSet = { db: Db; session: ClientSession };
 
 type ModelParams = { collectionName: string; apiPath: string };
 
-type SchemaParams = { sessionSet: SessionSet } | {};
+type SchemaParams = SessionSet | void;
 
-type SchemaFunc<T extends SchemaParams, U extends any> = (
-  params: T
-) => z.Schema<U>;
-
-type SchemaRule<T extends SchemaParams> = (params: T) => z.Schema;
+type SchemaFunc<T extends SchemaParams, U extends any> = T extends void
+  ? z.Schema<U>
+  : (params: T) => z.Schema<U>;
 
 type SchemaRules<T> = {
-  joinUserSchema: SchemaRule<T>;
+  joinUserSchema: SchemaFunc<T, any>;
 };
 
 type SchemaFuncBuilder<T extends SchemaParams, U extends any> = (
   schemarules: SchemaRules<T>
 ) => SchemaFunc<T, U>;
-
-type ExistingObject = { _id: ObjectId };

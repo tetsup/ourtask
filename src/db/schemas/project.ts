@@ -1,5 +1,4 @@
 import z from 'zod';
-import { User } from '../params/user';
 
 export const Project: ModelParams = {
   collectionName: 'Projects',
@@ -12,14 +11,14 @@ export const roleSchema = z.enum(roles);
 
 const assignmentSchema: SchemaFuncBuilder<any, any> =
   ({ joinUserSchema }) =>
-  (schemaParams) =>
+  (schemaParams: SchemaParams) =>
     z.object({
       assignee: joinUserSchema(schemaParams),
       role: roleSchema,
     });
 
 export const postProjectSchema: SchemaFuncBuilder<any, any> =
-  (schemaRules) => (schemaParams) =>
+  (schemaRules) => (schemaParams: SchemaParams) =>
     z.object({
       name: z.string().min(1).max(20),
       description: z.string().max(1000).optional(),

@@ -6,6 +6,7 @@ import { api, DbExecuteParams, needLogin } from '@/db/func';
 import { getProjectListSchema, postProjectSchema } from '@/db/schemas/project';
 import { Project } from '../params/project';
 import { ForbiddenError } from '../errors';
+import { UserRef } from '../types/user';
 
 const apiGetListAggregater = ({
   authInfo,
@@ -66,9 +67,8 @@ export const apiPost = async (req: NextRequest) =>
         authorize: async (authParams) => {
           await needLogin(authParams);
           if (
-            !authParams.params.owners.some(
-              (owner: ExistingObject) =>
-                owner._id == authParams.authInfo?.user.id
+            !authParams.params.owners.some((owner: UserRef) =>
+              owner._id.equals(authParams.authInfo?.user.id)
             )
           )
             throw new ForbiddenError();
