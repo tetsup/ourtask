@@ -37,7 +37,7 @@ const config = {
           },
         },
       },
-    ],
+    ] as [string, unknown],
   },
 };
 
