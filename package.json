@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "jest"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -25,6 +26,10 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@shelf/jest-mongodb": "^6.0.0",
+    "@swc/core": "^1.15.2",
+    "@swc/jest": "^0.2.39",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

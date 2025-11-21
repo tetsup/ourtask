@@ -52,6 +52,12 @@ export const ja = {
     new: '新規プロジェクト',
     edit: 'プロジェクト編集',
   },
+  role: {
+    maintainer: 'Maintainer',
+    reviewer: 'Reviewer',
+    reporter: 'Reporter',
+    viewer: 'Viewer',
+  },
   task: {
     subject: '件名',
     assignees: '担当者',

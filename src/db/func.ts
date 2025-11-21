@@ -1,134 +1,71 @@
-import { ClientSession } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { Session, User } from 'better-auth';
 import { auth } from '@/auth/server';
-import { collection } from './setup';
+import { handleError, UnAuthorizedError, UnprocessableError } from './errors';
+import { serverRule } from './rules/server';
 
-class ApiError extends Error {
-  readonly status: number;
-  constructor(status: number, message: string, errorOptions?: ErrorOptions) {
-    super(message, errorOptions);
-    this.status = status;
-  }
-  toResponse() {
-    const { status, message, cause, name, stack } = this;
-    return NextResponse.json({ message, cause, name, stack }, { status });
-  }
-}
-class BadRequestError extends ApiError {
-  constructor(message: string, errorOptions?: ErrorOptions) {
-    super(400, message, errorOptions);
-  }
-}
-class UnAuthorizedError extends ApiError {
-  constructor(errorOptions?: ErrorOptions) {
-    super(401, 'login required', errorOptions);
-  }
-}
-class ForbiddenError extends ApiError {
-  constructor(errorOptions?: ErrorOptions) {
-    super(403, 'access denied', errorOptions);
-  }
-}
-class NotFoundError extends ApiError {
-  constructor(errorOptions?: ErrorOptions) {
-    super(404, 'not found', errorOptions);
-  }
-}
-class UnprocessableError extends ApiError {
-  constructor({ message, cause }: z.ZodError) {
-    super(422, message, { cause });
-  }
-}
-class InternalServerError extends ApiError {
-  constructor(e?: unknown) {
-    super(500, 'unexpected error', { cause: e });
-  }
-}
-export type Validation<T> = {
-  schema: z.ZodType<T>;
-  schemaAsync: (session?: ClientSession) => z.ZodType<T>;
-  permission: Permission<T>;
-};
+type Schema<Z extends z.ZodType<any>> = (sessionSet: SessionSet) => Z;
 
-type AsyncFunc<T, U> = (args: T) => Promise<U>;
-
-type AuthInfo = { session: Session; user: User };
+export type AuthInfo = { session: Session; user: User };
 
 type PermissionParams<T> = {
   authInfo: AuthInfo | null;
   params: T;
-  session?: ClientSession;
+  sessionSet: SessionSet;
 };
 
 type Permission<T> = AsyncFunc<PermissionParams<T>, void>;
 
-type ApiParams<T> = {
+type ApiParams<Z extends z.ZodType<any>> = {
   req: NextRequest;
-  execute: DbExecute<T>;
-  validation: Validation<T>;
-  session?: ClientSession;
+  execute: DbExecute<z.infer<Z>>;
+  schema: (rule: SchemaRule) => Schema<Z>;
+  authorize: Permission<z.infer<Z>>;
+  sessionSet: SessionSet;
 };
+
+export type Api<Z extends z.ZodType<any>> = (
+  params: ApiParams<Z>
+) => Promise<NextResponse>;
 
 export type DbExecuteParams<T> = {
   params: T;
   authInfo: AuthInfo | null;
-  session?: ClientSession;
+  sessionSet: SessionSet;
 };
 
-type DbExecute<T> = AsyncFunc<DbExecuteParams<T>, any>;
+export type DbExecute<T> = AsyncFunc<DbExecuteParams<T>, any>;
 
 const readParams = async (req: NextRequest) => {
-  return await req.json();
-};
-
-const handleError = async (
-  func: AsyncFunc<void, NextResponse>
-): Promise<NextResponse> => {
   try {
-    return await func();
-  } catch (e: unknown) {
-    if (e instanceof ApiError) return e.toResponse();
-    else if (e instanceof z.ZodError)
-      return new UnprocessableError(e).toResponse();
-    else return new InternalServerError(e).toResponse();
+    if (req.method === 'GET') {
+      const q = req.nextUrl.searchParams.get('q');
+      return q ? JSON.parse(q) : {};
+    }
+    if (req.method === 'POST' || req.method === 'PUT') return await req.json();
+  } catch (e: any) {
+    throw new UnprocessableError(e);
   }
 };
 
-export const api = async ({
+export const api: Api<z.ZodType<any>> = async ({
   req,
   execute,
-  validation: { schema, schemaAsync, permission },
-  session,
-}: ApiParams<any>) =>
+  schema,
+  authorize,
+  sessionSet,
+}) =>
   await handleError(async () => {
     const params = await readParams(req);
-    const parsedParams = schema.parse(params);
+    const parsedParams =
+      await schema(serverRule)(sessionSet).parseAsync(params);
     const authInfo = await auth.api.getSession({ headers: req.headers });
-    await permission({ authInfo, params, session });
-    await schemaAsync(session).parseAsync(parsedParams);
-    const res = await execute({ params: parsedParams, authInfo, session });
+    await authorize({ authInfo, params, sessionSet });
+    const res = await execute({ params: parsedParams, authInfo, sessionSet });
     return NextResponse.json(res, { status: 200 });
   });
 
 export const needLogin: Permission<any> = async ({ authInfo }) => {
   if (authInfo == null || authInfo.user == null) throw new UnAuthorizedError();
 };
-
-export const simpleInsertOne =
-  (collectionName: string): DbExecute<any> =>
-  async ({ params: { data }, session }) =>
-    await collection(collectionName).insertOne(data, { session });
-
-export const simpleUpdateOne =
-  (collectionName: string): DbExecute<any> =>
-  async ({ params: { data }, session }) =>
-    await collection(collectionName).updateOne({ _id: data._id }, data, {
-      session,
-    });
-
-export const simpleDeleteOne =
-  (collectionName: string): DbExecute<any> =>
-  async ({ params: { _id }, session }) =>
-    await collection(collectionName).deleteOne({ _id }, { session });

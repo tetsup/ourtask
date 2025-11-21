@@ -5,7 +5,20 @@ import { backdropContext } from '@/contexts/BackDrop';
 
 class FetchError extends Error {}
 
-const useCommonFetch = () => {
+type UseCommonFetchOptions = {
+  useBackdrop: boolean;
+  useSuccessAlert: boolean;
+  useFailAlert: boolean;
+  successMessage?: string;
+};
+
+const onlyFetch: UseCommonFetchOptions = {
+  useBackdrop: false,
+  useSuccessAlert: false,
+  useFailAlert: false,
+};
+
+const useCommonFetch = (options?: UseCommonFetchOptions) => {
   const { withBackdrop } = useContext(backdropContext);
   const { add } = useContext(alertContext);
   return (
@@ -13,20 +26,28 @@ const useCommonFetch = () => {
     params?: RequestInit,
     callback?: (data: any) => Promise<void>
   ) => {
-    withBackdrop(async () => {
+    const commonFetch = async () => {
       try {
         const res = await fetch(url, params);
         if (res.ok) {
           const data = await res.json();
           callback && (await callback(data));
+          if (options?.useSuccessAlert ?? true)
+            add({
+              severity: 'success',
+              message: options?.successMessage,
+            });
         } else throw new FetchError(res.statusText);
       } catch (e) {
-        add({
-          severity: 'error',
-          message: e instanceof FetchError ? e.message : String(e),
-        });
+        if (options?.useFailAlert ?? true)
+          add({
+            severity: 'error',
+            message: e instanceof FetchError ? e.message : String(e),
+          });
       }
-    });
+    };
+    if (options?.useBackdrop ?? true) withBackdrop(commonFetch);
+    else commonFetch();
   };
 };
 
@@ -37,7 +58,7 @@ export const usePostOrPut = (
 ) => {
   const fetch = useCommonFetch();
   return async (data: any) => {
-    await fetch(
+    fetch(
       `${endpoint}/${_id ?? ''}`,
       {
         method: _id ? 'PUT' : 'POST',
@@ -48,13 +69,19 @@ export const usePostOrPut = (
   };
 };
 
-export const useQuery = <T extends any>(endpoint: string, initData: T) => {
-  const fetch = useCommonFetch();
-  const [query, setQuery] = useState<string>('');
+export const useQuery = <T extends any, Q extends object>(
+  endpoint: string,
+  initData: T,
+  initQuery?: Q
+) => {
+  const fetch = useCommonFetch(onlyFetch);
+  const [query, setQuery] = useState<Q | undefined>(initQuery);
   const [data, setData] = useState<T>(initData);
   useEffect(() => {
+    if (!query) return;
+    const q = JSON.stringify(query);
     fetch(
-      `${endpoint}?${new URLSearchParams(query)}`,
+      `${endpoint}?${new URLSearchParams({ q })}`,
       {
         method: 'GET',
       },

@@ -1,26 +1,12 @@
 'use server';
-import z from 'zod';
 import { NextRequest } from 'next/server';
 import { Document } from 'mongodb';
-import { api, DbExecuteParams, needLogin, Validation } from '../func';
-import { projectSchema } from '../schemas/server/project';
-import { collection, withTransaction } from '../setup';
+import { withTransaction } from '@/db/setup';
+import { api, DbExecuteParams, needLogin } from '@/db/func';
+import { getProjectListSchema, postProjectSchema } from '@/db/schemas/project';
+import { Project } from '../params/project';
+import { ForbiddenError } from '../errors';
 
-type Project = z.infer<typeof projectSchema>;
-type PostParams = { data: Project };
-
-const apiGetListValidation: Validation<any> = {
-  schema: z.any(),
-  schemaAsync: () => z.any(),
-  permission: needLogin,
-};
-const apiPostValidation: Validation<PostParams> = {
-  schema: z.object({ data: projectSchema }),
-  schemaAsync: () => z.any(),
-  permission: async ({ authInfo, params }) => {
-    params.data.ownerIds.some((ownerId) => ownerId.equals(authInfo?.user.id));
-  },
-};
 const apiGetListAggregater = ({
   authInfo,
 }: DbExecuteParams<any>): Document[] => [
@@ -28,7 +14,10 @@ const apiGetListAggregater = ({
     $match: {
       $or: [
         {
-          ownerIds: { $in: [authInfo?.user.id] },
+          'owners._id': { $in: [authInfo?.user.id] },
+        },
+        {
+          'assignees.user._id': { $in: [authInfo?.user.id] },
         },
       ],
     },
@@ -36,7 +25,7 @@ const apiGetListAggregater = ({
   {
     $lookup: {
       from: 'Users',
-      localField: 'ownerIds',
+      localField: 'owners._id',
       foreignField: '_id',
       as: 'owners',
     },
@@ -44,34 +33,48 @@ const apiGetListAggregater = ({
   {
     $lookup: {
       from: 'Users',
-      localField: 'assignees.userId',
+      localField: 'assignees.user._id',
       foreignField: '_id',
       as: 'assignees.user',
     },
   },
 ];
+
 export const apiGetList = async (req: NextRequest) =>
   await withTransaction(
-    async (session) =>
+    async (sessionSet) =>
       await api({
         req,
-        session,
-        validation: apiGetListValidation,
-        execute: async (params) =>
-          await collection('Projects')
+        sessionSet,
+        schema: getProjectListSchema,
+        authorize: needLogin,
+        execute: async ({ params, sessionSet: { db, session } }) =>
+          await db
+            .collection(Project.collectionName)
             .aggregate(apiGetListAggregater(params), { session })
             .toArray(),
       })
   );
+
 export const apiPost = async (req: NextRequest) =>
   await withTransaction(
-    async (session) =>
+    async (sessionSet) =>
       await api({
         req,
-        session,
-        validation: apiPostValidation,
-        execute: async ({ params: { data }, session }) =>
-          await collection('Projects').insertOne(data, {
+        sessionSet,
+        schema: postProjectSchema,
+        authorize: async (authParams) => {
+          await needLogin(authParams);
+          if (
+            !authParams.params.owners.some(
+              (owner: ExistingObject) =>
+                owner._id == authParams.authInfo?.user.id
+            )
+          )
+            throw new ForbiddenError();
+        },
+        execute: async ({ params, sessionSet: { db, session } }) =>
+          await db.collection(Project.collectionName).insertOne(params, {
             session,
           }),
       })

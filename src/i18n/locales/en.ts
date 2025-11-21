@@ -52,6 +52,12 @@ export const en = {
     new: 'New Project',
     edit: 'Edit Project',
   },
+  role: {
+    maintainer: 'Maintainer',
+    reviewer: 'Reviewer',
+    reporter: 'Reporter',
+    viewer: 'Viewer',
+  },
   task: {
     subject: 'Subject',
     assignees: 'Assignees',
