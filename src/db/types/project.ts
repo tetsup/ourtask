@@ -10,6 +10,7 @@ type AssignmentOutput<T extends string | ObjectId> = {
 };
 
 export type ProjectOutput<T extends string | ObjectId> = {
+  _id: T;
   name: string;
   description: string;
   owners: UserOutput<T>[];

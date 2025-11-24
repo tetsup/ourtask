@@ -1,6 +1,6 @@
 'use server';
 import { NextRequest } from 'next/server';
-import { Document } from 'mongodb';
+import { Document, ObjectId } from 'mongodb';
 import { withTransaction } from '@/db/setup';
 import { api, DbExecuteParams, needLogin } from '@/db/func';
 import { getProjectListSchema, postProjectSchema } from '@/db/schemas/project';
@@ -9,16 +9,16 @@ import { ForbiddenError } from '../errors';
 import { UserRef } from '../types/user';
 
 const apiGetListAggregater = ({
-  authInfo,
+  signInUser,
 }: DbExecuteParams<any>): Document[] => [
   {
     $match: {
       $or: [
         {
-          'owners._id': { $in: [authInfo?.user.id] },
+          'owners._id': { $in: [signInUser?._id] },
         },
         {
-          'assignees.user._id': { $in: [authInfo?.user.id] },
+          'assignees.user._id': { $in: [signInUser?._id] },
         },
       ],
     },
@@ -34,9 +34,9 @@ const apiGetListAggregater = ({
   {
     $lookup: {
       from: 'Users',
-      localField: 'assignees.user._id',
+      localField: 'assignees.assignee._id',
       foreignField: '_id',
-      as: 'assignees.user',
+      as: 'assignees.assignee',
     },
   },
 ];
@@ -67,8 +67,8 @@ export const apiPost = async (req: NextRequest) =>
         authorize: async (authParams) => {
           await needLogin(authParams);
           if (
-            !authParams.params.owners.some((owner: UserRef) =>
-              owner._id.equals(authParams.authInfo?.user.id)
+            !authParams.params.owners.some((owner: UserRef<ObjectId>) =>
+              owner._id.equals(authParams.signInUser?._id)
             )
           )
             throw new ForbiddenError();

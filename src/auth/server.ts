@@ -1,8 +1,9 @@
+import { NextRequest } from 'next/server';
 import { betterAuth } from 'better-auth';
 import { customSession } from 'better-auth/plugins';
 import { mongodbAdapter } from 'better-auth/adapters/mongodb';
 import { database, withTransaction } from '@/db/setup';
-import { getUserSetting } from '@/db/models/userSetting';
+import { UserSetting } from '@/db/params/userSetting';
 
 export const auth = betterAuth({
   database: mongodbAdapter(database()),
@@ -15,21 +16,24 @@ export const auth = betterAuth({
   session: { modelName: 'UserSessions' },
   account: { modelName: 'UserAccounts' },
   plugins: [
-    customSession(async ({ user, session }) => {
-      const userOptions = await withTransaction(async (sessionSet) => {
-        await getUserSetting({
-          params: { user: { _id: user.id } },
-          authInfo: { user, session },
-          sessionSet,
-        });
-      });
+    customSession(async ({ user }) => {
+      const { id, ...newUser } = user;
+      const baseUser = { _id: id, ...newUser };
+      const userSetting = await withTransaction(
+        async ({ db, session }) =>
+          await db
+            .collection(UserSetting.collectionName)
+            .findOne({ userId: id }, { session })
+      );
       return {
-        user: {
-          ...user,
-          ...userOptions,
-        },
-        session,
+        ...baseUser,
+        setting: userSetting,
       };
     }),
   ],
 });
+
+export const getSignInUser = async (req: NextRequest) => {
+  const session = await auth.api.getSession(req);
+  return session;
+};

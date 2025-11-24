@@ -6,7 +6,7 @@ import { Project } from '@/db/params/project';
 import { auth } from '@/auth/server';
 import { ProjectFactory } from '../../factories/project.factory';
 import { createDummyUsersInDb } from '../../factories/user.factory';
-import { dummyAuthInfo } from '../../mocks/auth';
+import { dummySignInUser } from '../../mocks/auth';
 
 describe('postProject', () => {
   let userIds: ObjectId[];
@@ -31,7 +31,7 @@ describe('postProject', () => {
   test('inserted', async () => {
     jest
       .spyOn(auth.api, 'getSession')
-      .mockResolvedValue(await dummyAuthInfo(userIds[0]));
+      .mockResolvedValue(dummySignInUser(userIds[0]));
     const project = new ProjectFactory({
       owners: [{ _id: userIds[0] }],
     }).build();
@@ -45,9 +45,13 @@ describe('postProject', () => {
     const resBody = await res.json();
     const inserted = await withTransaction(
       async ({ db, session }) =>
-        await db.collection(Project.collectionName).findOne({}, { session })
+        await db
+          .collection(Project.collectionName)
+          .find({}, { session })
+          .toArray()
     );
-    expect(inserted).toEqual({
+    expect(inserted).toHaveLength(1);
+    expect(inserted[0]).toEqual({
       ...project,
       _id: new ObjectId(resBody.insertedId as string),
     });

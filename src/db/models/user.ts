@@ -1,9 +1,29 @@
 'use server';
 import { NextRequest } from 'next/server';
+import { Document } from 'mongodb';
 import { withTransaction } from '@/db/setup';
-import { api, needLogin } from '@/db/func';
+import { api, DbExecuteParams, needLogin } from '@/db/func';
 import { User } from '@/db/params/user';
 import { queryWordSchema } from '../schemas/common';
+
+const apiGetListAggregater = ({ params }: DbExecuteParams<any>): Document[] => [
+  {
+    $match: {
+      $or: [
+        { name: { $regex: params.word } },
+        { email: { $regex: params.word } },
+      ],
+    },
+  },
+  {
+    $lookup: {
+      from: 'UserOptions',
+      localField: '_id',
+      foreignField: 'userId',
+      as: 'option',
+    },
+  },
+];
 
 export const apiGetList = async (req: NextRequest) =>
   await withTransaction(
@@ -16,16 +36,7 @@ export const apiGetList = async (req: NextRequest) =>
         execute: async ({ params, sessionSet: { db, session } }) =>
           await db
             .collection(User.collectionName)
-            .find(
-              {
-                $or: [
-                  { name: { $regex: params.word } },
-                  { email: { $regex: params.word } },
-                ],
-              },
-              { session }
-            )
-            .project({ _id: 1, name: 1, email: 1 })
+            .aggregate(apiGetListAggregater(params), { session })
             .limit(10)
             .toArray(),
       })
