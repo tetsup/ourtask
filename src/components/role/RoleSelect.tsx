@@ -5,22 +5,22 @@ import {
   FieldValues,
   Path,
 } from 'react-hook-form';
-import { User } from '@/db/schemas/base/user';
-import { useQuery } from '@/hooks/api';
 import { CommonSingleSelect } from '@/components/common/parts/CommonSingleSelect';
+import { roles } from '@/db/schemas/project';
+import { useLanguage } from '@/i18n/provider';
 
 type FieldByType<F extends FieldValues, T> = {
   [P in Path<F>]: T extends FieldPathValue<F, P> ? P : never;
 }[Path<F>];
 
 type RoleSelectProps<T extends FieldValues> = {
-  name: FieldByType<T, User>;
+  name: FieldByType<T, (typeof roles)[number]>;
   control: Control<T>;
   label: string;
 };
 
 export const RoleSelect = ({ name, control, label }: RoleSelectProps<any>) => {
-  const { data, setQuery } = useQuery('/api/role/', []);
+  const { t } = useLanguage();
   return (
     <Controller
       name={name}
@@ -28,10 +28,8 @@ export const RoleSelect = ({ name, control, label }: RoleSelectProps<any>) => {
       render={(props) => (
         <CommonSingleSelect
           {...props}
-          options={data}
-          onInputChange={(_, v) => {
-            setQuery(v);
-          }}
+          options={roles}
+          renderValue={(v: (typeof roles)[number]) => t.role[v]}
           label={label}
         />
       )}

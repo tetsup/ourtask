@@ -5,7 +5,7 @@ import {
   FieldValues,
   Path,
 } from 'react-hook-form';
-import { User } from '@/db/schemas/base/user';
+import { UserOutput } from '@/db/types/user';
 import { useQuery } from '@/hooks/api';
 import { CommonMultipleSelect } from '@/components/common/parts/CommonMultipleSelect';
 
@@ -14,7 +14,7 @@ type FieldByType<F extends FieldValues, T> = {
 }[Path<F>];
 
 type MultipleUserSelectProps<T extends FieldValues> = {
-  name: FieldByType<T, User>;
+  name: FieldByType<T, UserOutput<string>>;
   control: Control<T>;
   label: string;
 };
@@ -24,19 +24,27 @@ export const MultipleUserSelect = ({
   control,
   label,
 }: MultipleUserSelectProps<any>) => {
-  const { data, setQuery } = useQuery('/api/user/', []);
+  const { data, setQuery } = useQuery(
+    '/api/user/',
+    [] as UserOutput<string>[],
+    {
+      word: '',
+    }
+  );
   return (
     <Controller
       name={name}
       control={control}
-      render={(props) => (
+      render={({ field }) => (
         <CommonMultipleSelect
-          field={props.field}
-          fieldState={props.fieldState}
-          formState={props.formState}
-          options={data}
+          {...field}
+          options={data.map((user) => user?._id)}
           onInputChange={(_, v) => {
-            setQuery(v);
+            setQuery({ word: v });
+          }}
+          getOptionLabel={(_id) => {
+            const user = data.find((u) => u?._id === _id);
+            return `${user?.name}<${user?.email}>`;
           }}
           label={label}
         />

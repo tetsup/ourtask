@@ -1,9 +1,9 @@
 import { AvatarGroup } from '@mui/material';
-import { User } from '@/db/schemas/base/user';
+import { UserOutput } from '@/db/types/user';
 import { CommonAvatar } from './CommonAvatar';
 
 type CommonAvatarGroupProps = {
-  users: User[];
+  users: UserOutput<string>[];
   max: number;
 };
 

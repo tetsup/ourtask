@@ -1,11 +1,14 @@
-import { User } from '@/db/schemas/base/user';
 import Avatar from 'boring-avatars';
+import { UserOutput } from '@/db/types/user';
 
-type CommonAvatarProps = { user: User };
+type CommonAvatarProps = { user: UserOutput<string> };
 
 export const CommonAvatar = ({ user }: CommonAvatarProps) =>
-  user.avatar ? (
-    <Avatar variant={user.avatar.variant} name={user.avatar.name} />
+  user?.setting.avatar ? (
+    <Avatar
+      variant={user.setting.avatar.variant}
+      name={user.setting.avatar.name}
+    />
   ) : (
-    <Avatar name={user.name} />
+    <Avatar name={user?.name} />
   );

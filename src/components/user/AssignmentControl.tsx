@@ -5,14 +5,14 @@ import { CommonButton } from '../common/parts/CommonButton';
 import { RoleSelect } from '../role/RoleSelect';
 import { SingleUserSelect } from './SingleUserSelect';
 
-type AssigmeeControlProps<T extends FieldValues> = {
+type AssignmentControlProps<T extends FieldValues> = {
   name: Path<T>;
   control: Control<T>;
 };
-export const AssigneeControl = ({
+export const AssignmentControl = ({
   name,
   control,
-}: AssigmeeControlProps<any>) => {
+}: AssignmentControlProps<any>) => {
   const { t } = useLanguage();
   const { fields, append, remove } = useFieldArray({
     name,
@@ -23,12 +23,12 @@ export const AssigneeControl = ({
       {fields.map((_, index) => (
         <ListItem>
           <SingleUserSelect
-            name={`assignees.${index}.user`}
+            name={`assignments.${index}.assignee`}
             control={control}
             label={t.user.name}
           />
           <RoleSelect
-            name={`assignees.${index}.role`}
+            name={`assignments.${index}.role`}
             control={control}
             label={t.common.role}
           />

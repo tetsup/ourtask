@@ -1,14 +1,14 @@
 import { IconButton, Typography } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 import { useLanguage } from '@/i18n/provider';
-import { ProjectFull } from '@/db/schemas/client/project';
+import { ProjectOutput } from '@/db/types/project';
+import { CommonCard } from '../common/parts/CommonCard';
 import { CommonAvatar } from '../user/CommonAvatar';
 import { CommonAvatarGroup } from '../user/CommonAvatarGroup';
-import { CommonCard } from '../common/parts/CommonCard';
 
 type ProjectCardProps = {
   _id?: string;
-  project: ProjectFull;
+  project: ProjectOutput<string>;
   onEdit: () => void;
 };
 type NewProjectCardProps = { onClick: () => void };

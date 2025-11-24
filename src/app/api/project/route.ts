@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { apiGetList, apiPost } from '@/db/models/server/project';
+import { apiGetList, apiPost } from '@/db/models/project';
 
 export const GET = async (req: NextRequest) => {
   return await apiGetList(req);

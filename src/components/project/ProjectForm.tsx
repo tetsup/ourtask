@@ -1,24 +1,31 @@
 'use client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Project, projectSchema } from '@/db/schemas/client/project';
+import z from 'zod';
+import { postProjectSchema } from '@/db/schemas/project';
+import { clientRules } from '@/db/rules/client';
 import { usePostOrPut } from '@/hooks/api';
 import { useLanguage } from '@/i18n/provider';
 import { MultipleUserSelect } from '../user/MultipleUserSelect';
-import { AssigneeControl } from '../user/AssigneeControl';
+import { AssignmentControl } from '../user/AssignmentControl';
 import { CommonTextField } from '../common/parts/CommonInput';
 import { CommonButton } from '../common/parts/CommonButton';
 import { CommonForm } from '../common/layouts/CommonForm';
 
-type ProjectFormProps = {
+const clientPostProjectSchema = postProjectSchema(clientRules);
+
+export type ProjectFormProps = {
   _id?: string;
-  defaultValues: Project;
+  defaultValues: z.input<typeof clientPostProjectSchema>;
 };
 
 export const ProjectForm = ({ _id, defaultValues }: ProjectFormProps) => {
   const { t } = useLanguage();
   const postOrPut = usePostOrPut('/api/project', _id);
-  const form = useForm({ resolver: zodResolver(projectSchema), defaultValues });
+  const form = useForm({
+    resolver: zodResolver(clientPostProjectSchema),
+    defaultValues,
+  });
   const { register, control } = form;
 
   return (
@@ -34,7 +41,7 @@ export const ProjectForm = ({ _id, defaultValues }: ProjectFormProps) => {
         control={control}
         label={t.project.owners}
       />
-      <AssigneeControl name="assignments" control={control} />
+      <AssignmentControl name="assignments" control={control} />
       <CommonButton type="submit" />
     </CommonForm>
   );

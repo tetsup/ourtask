@@ -1,14 +1,14 @@
 'use client';
 import { useForm } from 'react-hook-form';
 import { authClient } from '@/auth/client';
-import { SignInButton } from './SingInButton';
+import { useLanguage } from '@/i18n/provider';
 import { FormLayout } from '../common/layouts/FormLayout';
 import {
   CommonPasswordField,
   CommonTextField,
 } from '../common/parts/CommonInput';
 import { CommonLink } from '../common/parts/CommonLink';
-import { useLanguage } from '@/i18n/provider';
+import { SignInButton } from './SingInButton';
 
 type SignInInfo = { email: string; password: string };
 

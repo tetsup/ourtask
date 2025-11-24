@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Backdrop, Typography } from '@mui/material';
 import { authClient } from '@/auth/client';
-import { signUpSchema } from '@/db/schemas/base/user';
+import { signUpSchema } from '@/db/schemas/user';
 import { useLanguage } from '@/i18n/provider';
 import { FormLayout } from '../common/layouts/FormLayout';
 import {
