@@ -21,4 +21,7 @@ const joinUserSchema: SchemaFunc<SessionSet, any> = ({ db, session }) =>
           .findOne({ _id: v._id }, { session })) != null
     );
 
-export const serverRules: SchemaRules<SessionSet> = { joinUserSchema };
+const serverRules: SchemaRules<SessionSet> = { joinUserSchema };
+
+export const serverSchema = (baseSchema: SchemaFuncBuilder<any, any>) =>
+  baseSchema(serverRules);

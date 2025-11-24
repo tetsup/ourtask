@@ -4,4 +4,7 @@ const idSchema = z.string().regex(/^[a-fA-F0-9]{24}$/);
 
 const joinUserSchema = ({}) => z.object({ _id: idSchema });
 
-export const clientRules: SchemaRules<{}> = { joinUserSchema };
+const clientRules: SchemaRules<{}> = { joinUserSchema };
+
+export const clientSchema = (baseSchema: SchemaFuncBuilder<any, any>) =>
+  baseSchema(clientRules)();

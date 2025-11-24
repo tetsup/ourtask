@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
 import { postProjectSchema } from '@/db/schemas/project';
-import { clientRules } from '@/db/rules/client';
+import { clientSchema } from '@/db/rules/client';
 import { usePostOrPut } from '@/hooks/api';
 import { useLanguage } from '@/i18n/provider';
 import { MultipleUserSelect } from '../user/MultipleUserSelect';
@@ -12,7 +12,7 @@ import { CommonTextField } from '../common/parts/CommonInput';
 import { CommonButton } from '../common/parts/CommonButton';
 import { CommonForm } from '../common/layouts/CommonForm';
 
-const clientPostProjectSchema = postProjectSchema(clientRules);
+const clientPostProjectSchema = clientSchema(postProjectSchema);
 
 export type ProjectFormProps = {
   _id?: string;

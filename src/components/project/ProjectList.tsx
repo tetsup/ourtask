@@ -12,12 +12,12 @@ import { NewProjectCard, ProjectCard } from './ProjectCard';
 export const ProjectList = () => {
   const { t } = useLanguage();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const { data } = authClient.useSession();
+  const { data: user } = authClient.useSession();
   const initFormProps = (): ProjectFormProps => ({
     defaultValues: {
       name: '',
       description: '',
-      owners: [{ ...data?.user, _id: data?.user.id }],
+      owners: [{ ...user }],
       assignees: [],
     },
   });

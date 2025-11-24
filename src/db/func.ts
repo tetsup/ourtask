@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSignInUser } from '@/auth/server';
 import { handleError, UnAuthorizedError, UnprocessableError } from './errors';
-import { serverRules } from './rules/server';
+import { serverSchema } from './rules/server';
 import { User } from './types/user';
 
 export type DbExecuteParams<T> = {
@@ -46,7 +46,7 @@ export const api: Api<any> = async ({
   await handleError(async () => {
     const params = await readParams(req);
     const parsedParams =
-      await schema(serverRules)(sessionSet).parseAsync(params);
+      await serverSchema(schema)(sessionSet).parseAsync(params);
     const signInUser = await getSignInUser(req);
     await authorize({ signInUser, params: parsedParams, sessionSet });
     const res = await execute({ signInUser, params: parsedParams, sessionSet });
