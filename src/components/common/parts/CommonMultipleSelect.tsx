@@ -1,10 +1,5 @@
 'use client';
-import {
-  ControllerFieldState,
-  ControllerRenderProps,
-  FieldValues,
-  UseFormStateReturn,
-} from 'react-hook-form';
+import { FieldError } from 'react-hook-form';
 import { Autocomplete, AutocompleteProps, TextFieldProps } from '@mui/material';
 import { CommonTextField } from './CommonInput';
 
@@ -13,11 +8,13 @@ type CommonMultipleSelectProps = {
   slotProps?: {
     TextField?: TextFieldProps;
   };
+  errorInfo?: FieldError;
 } & Omit<AutocompleteProps<any, true, false, false>, 'renderInput'>;
 
 export const CommonMultipleSelect = ({
   label,
   slotProps,
+  errorInfo,
   ...props
 }: CommonMultipleSelectProps) => {
   return (
@@ -26,7 +23,13 @@ export const CommonMultipleSelect = ({
       fullWidth
       multiple
       renderInput={(params) => (
-        <CommonTextField {...slotProps?.TextField} {...params} label={label} />
+        <CommonTextField
+          {...slotProps?.TextField}
+          {...params}
+          label={label}
+          error={!!errorInfo}
+          helperText={errorInfo?.message ?? slotProps?.TextField?.helperText}
+        />
       )}
     />
   );

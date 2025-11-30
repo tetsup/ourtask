@@ -9,8 +9,11 @@ import { useLanguage } from '@/i18n/provider';
 import { MultipleUserSelect } from '../user/MultipleUserSelect';
 import { AssignmentControl } from '../user/AssignmentControl';
 import { CommonTextField } from '../common/parts/CommonInput';
-import { CommonButton } from '../common/parts/CommonButton';
+import { CommonSubmitButton } from '../common/parts/CommonButton';
 import { CommonForm } from '../common/layouts/CommonForm';
+import { Typography } from '@mui/material';
+import { useLogging } from '@/contexts/Logging';
+import { useEffect } from 'react';
 
 const clientPostProjectSchema = clientSchema(postProjectSchema);
 
@@ -20,29 +23,41 @@ export type ProjectFormProps = {
 };
 
 export const ProjectForm = ({ _id, defaultValues }: ProjectFormProps) => {
+  const { addLog } = useLogging();
   const { t } = useLanguage();
   const postOrPut = usePostOrPut('/api/project', _id);
   const form = useForm({
     resolver: zodResolver(clientPostProjectSchema),
     defaultValues,
   });
-  const { register, control } = form;
+  const { register, control, formState } = form;
 
   return (
-    <CommonForm {...form} onSubmit={postOrPut}>
-      <CommonTextField label={t.project.name} {...register('name')} />
+    <CommonForm
+      {...form}
+      onSubmit={(data) => {
+        addLog(data);
+        postOrPut(data);
+      }}
+    >
       <CommonTextField
+        {...register('name')}
+        label={t.project.name}
+        errorInfo={formState.errors.name}
+      />
+      <CommonTextField
+        {...register('description')}
         label={t.project.description}
         multiline
-        {...register('description')}
+        errorInfo={formState.errors.description}
       />
       <MultipleUserSelect
-        name="ownerIds"
+        name="owners"
         control={control}
         label={t.project.owners}
       />
       <AssignmentControl name="assignments" control={control} />
-      <CommonButton type="submit" />
+      <CommonSubmitButton />
     </CommonForm>
   );
 };

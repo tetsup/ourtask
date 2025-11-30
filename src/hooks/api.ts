@@ -57,7 +57,7 @@ export const usePostOrPut = (
   callback?: (res: Response) => Promise<void>
 ) => {
   const fetch = useCommonFetch();
-  return async (data: any) => {
+  return (data: any) => {
     fetch(
       `${endpoint}/${_id ?? ''}`,
       {

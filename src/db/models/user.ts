@@ -2,11 +2,11 @@
 import { NextRequest } from 'next/server';
 import { Document } from 'mongodb';
 import { withTransaction } from '@/db/setup';
-import { api, DbExecuteParams, needLogin } from '@/db/func';
+import { api, needLogin } from '@/db/func';
 import { User } from '@/db/params/user';
 import { queryWordSchema } from '../schemas/common';
 
-const apiGetListAggregater = ({ params }: DbExecuteParams<any>): Document[] => [
+const apiGetListAggregater = (params: any): Document[] => [
   {
     $match: {
       $or: [

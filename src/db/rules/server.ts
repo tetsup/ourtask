@@ -1,4 +1,3 @@
-'use server';
 import { ObjectId } from 'mongodb';
 import z from 'zod';
 import { User } from '../params/user';

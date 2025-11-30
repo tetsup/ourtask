@@ -3,7 +3,7 @@ import { FieldValues, FormProvider, UseFormReturn } from 'react-hook-form';
 
 type CommonFormProps<T extends FieldValues> = {
   children: ReactNode;
-  onSubmit: (data: T) => Promise<void>;
+  onSubmit: (data: T) => void | Promise<void>;
 } & UseFormReturn<T>;
 export const CommonForm = ({
   children,
@@ -11,8 +11,8 @@ export const CommonForm = ({
   ...form
 }: CommonFormProps<any>) => {
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)}>
-      <FormProvider {...form}>{children}</FormProvider>
-    </form>
+    <FormProvider {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>{children}</form>
+    </FormProvider>
   );
 };
