@@ -35,18 +35,16 @@ export const MultipleUserSelect = ({
     <Controller
       name={name}
       control={control}
-      render={({ field }) => (
+      render={({ field, fieldState }) => (
         <CommonMultipleSelect
           {...field}
-          options={data.map((user) => user?._id)}
+          options={data}
           onInputChange={(_, v) => {
             setQuery({ word: v });
           }}
-          getOptionLabel={(_id) => {
-            const user = data.find((u) => u?._id === _id);
-            return `${user?.name}<${user?.email}>`;
-          }}
+          getOptionLabel={(user) => `${user?.name}<${user?.email}>`}
           label={label}
+          errorInfo={fieldState.error}
         />
       )}
     />

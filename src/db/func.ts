@@ -5,7 +5,7 @@ import { serverSchema } from './rules/server';
 import { User } from './types/user';
 
 export type DbExecuteParams<T> = {
-  signInUser?: User;
+  signInUser?: User | null;
   params: T;
   sessionSet: SessionSet;
 };

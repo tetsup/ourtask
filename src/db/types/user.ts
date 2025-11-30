@@ -1,16 +1,12 @@
 import { getSignInUser } from '@/auth/server';
 import type { ObjectId } from 'mongodb';
+import { WithId } from './common';
 
-export type User = Exclude<
-  Awaited<ReturnType<typeof getSignInUser>>,
-  undefined
->;
+export type User = Exclude<Awaited<ReturnType<typeof getSignInUser>>, null>;
 
-export type UserOutput<
-  T extends string | ObjectId,
-  U extends User = User,
-> = U extends object ? { _id: T } & Omit<U, '_id'> : undefined;
+export type UserOutput<T extends string | ObjectId> = WithId<T, User>;
 
-export type UserRef<T extends string | ObjectId> = { _id: T } & Partial<
-  UserOutput<T, User>
+export type UserRef<T extends string | ObjectId> = WithId<
+  T,
+  { _id: T } & Partial<UserOutput<T>>
 >;
