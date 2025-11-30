@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { AlertProvider } from '@/contexts/Alert';
 import { BackdropProvider } from '@/contexts/BackDrop';
+import { LoggingProvider } from '@/contexts/Logging';
 import { LanguageProvider } from '@/i18n/provider';
 
 const geistSans = Geist({
@@ -25,14 +26,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <LanguageProvider initialLang="ja">
-      <html lang="ja">
-        <body className={`${geistSans.variable} ${geistMono.variable}`}>
-          <AlertProvider>
-            <BackdropProvider>{children}</BackdropProvider>
-          </AlertProvider>
-        </body>
-      </html>
-    </LanguageProvider>
+    <LoggingProvider maxLogs={100}>
+      <LanguageProvider initialLang="ja">
+        <html lang="ja">
+          <body className={`${geistSans.variable} ${geistMono.variable}`}>
+            <AlertProvider>
+              <BackdropProvider>{children}</BackdropProvider>
+            </AlertProvider>
+          </body>
+        </html>
+      </LanguageProvider>
+    </LoggingProvider>
   );
 }
