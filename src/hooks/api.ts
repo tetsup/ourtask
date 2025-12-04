@@ -31,6 +31,7 @@ type UseQueryParams<T, Q> = {
   endpoint: string;
   initData: T;
   initQuery?: Q;
+  useBackdrop?: boolean;
 };
 
 const useCommonFetch = ({
@@ -83,6 +84,7 @@ export const usePostOrPut = ({ endpoint, _id, callback }: UsePostOrPutParams) =>
     options: {
       useSuccessAlert: true,
       useFailAlert: true,
+      useBackdrop: true,
       successMessage: 'succeeded',
     },
   });
@@ -91,6 +93,7 @@ export const useQuery = <T extends any, Q extends object>({
   endpoint,
   initData,
   initQuery,
+  useBackdrop,
 }: UseQueryParams<T, Q>) => {
   const [query, setQuery] = useState<Q | undefined>(initQuery);
   const [data, setData] = useState<T>(initData);
@@ -100,6 +103,7 @@ export const useQuery = <T extends any, Q extends object>({
     callback: async (resData: T) => {
       setData(resData);
     },
+    options: { useBackdrop },
   });
 
   useEffect(() => {
