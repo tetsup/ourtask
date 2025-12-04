@@ -6,14 +6,12 @@ import { postProjectSchema } from '@/db/schemas/project';
 import { clientSchema } from '@/db/rules/client';
 import { usePostOrPut } from '@/hooks/api';
 import { useLanguage } from '@/i18n/provider';
+import { useLogging } from '@/contexts/Logging';
 import { MultipleUserSelect } from '../user/MultipleUserSelect';
 import { AssignmentControl } from '../user/AssignmentControl';
 import { CommonTextField } from '../common/parts/CommonInput';
 import { CommonSubmitButton } from '../common/parts/CommonButton';
 import { CommonForm } from '../common/layouts/CommonForm';
-import { Typography } from '@mui/material';
-import { useLogging } from '@/contexts/Logging';
-import { useEffect } from 'react';
 
 const clientPostProjectSchema = clientSchema(postProjectSchema);
 
@@ -25,7 +23,7 @@ export type ProjectFormProps = {
 export const ProjectForm = ({ _id, defaultValues }: ProjectFormProps) => {
   const { addLog } = useLogging();
   const { t } = useLanguage();
-  const postOrPut = usePostOrPut('/api/project', _id);
+  const postOrPut = usePostOrPut({ endpoint: '/api/project', _id });
   const form = useForm({
     resolver: zodResolver(clientPostProjectSchema),
     defaultValues,

@@ -10,16 +10,16 @@ type AlertParams = {
   message: ReactNode | string;
 };
 type AlertContext = {
-  add: (params: AlertParams) => void;
+  addAlert: (params: AlertParams) => void;
 };
 
-const initContext = { add: () => {} };
+const initContext = { addAlert: () => {} };
 
 export const alertContext = createContext<AlertContext>(initContext);
 
 export const AlertProvider = ({ children }: { children: ReactNode }) => {
   const [alerts, setAlerts] = useState<(AlertParams & { key: string })[]>([]);
-  const add = (alert: AlertParams) => {
+  const addAlert = (alert: AlertParams) => {
     const key = generateRandomString(10);
     setAlerts((current) => [...current, { ...alert, key }]);
   };
@@ -27,13 +27,14 @@ export const AlertProvider = ({ children }: { children: ReactNode }) => {
     setAlerts((current) => current.filter((alert) => alert.key !== key));
   };
   return (
-    <alertContext.Provider value={{ add }}>
+    <alertContext.Provider value={{ addAlert }}>
       {alerts.map((alert) => (
         <CommonAlert
+          key={alert.key}
+          severity={alert.severity}
           handleClose={() => {
             handleClose(alert.key);
           }}
-          {...alert}
         >
           {alert.message}
         </CommonAlert>

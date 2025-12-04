@@ -24,7 +24,10 @@ export const SingleUserSelect = ({
   control,
   label,
 }: SingleUserSelectProps<any>) => {
-  const { data, setQuery } = useQuery('/api/user/', [] as UserOutput<string>[]);
+  const { data, setQuery } = useQuery({
+    endpoint: '/api/user/',
+    initData: [] as UserOutput<string>[],
+  });
   return (
     <Controller
       name={name}

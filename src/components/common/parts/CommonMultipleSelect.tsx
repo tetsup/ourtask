@@ -3,20 +3,20 @@ import { FieldError } from 'react-hook-form';
 import { Autocomplete, AutocompleteProps, TextFieldProps } from '@mui/material';
 import { CommonTextField } from './CommonInput';
 
-type CommonMultipleSelectProps = {
+type CommonMultipleSelectProps<T> = {
   label: string;
   slotProps?: {
     TextField?: TextFieldProps;
   };
   errorInfo?: FieldError;
-} & Omit<AutocompleteProps<any, true, false, false>, 'renderInput'>;
+} & Omit<AutocompleteProps<T, true, false, false>, 'renderInput'>;
 
 export const CommonMultipleSelect = ({
   label,
   slotProps,
   errorInfo,
   ...props
-}: CommonMultipleSelectProps) => {
+}: CommonMultipleSelectProps<any>) => {
   return (
     <Autocomplete
       {...props}

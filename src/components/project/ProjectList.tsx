@@ -39,10 +39,10 @@ export const ProjectList = () => {
     const { _id, ...defaultValues } = data;
     handleDialogOpen({ _id, defaultValues });
   };
-  const { data: projects } = useQuery(
-    '/api/project',
-    [] as ProjectOutput<string>[]
-  );
+  const { data: projects } = useQuery({
+    endpoint: '/api/project',
+    initData: [] as ProjectOutput<string>[],
+  });
   return (
     <>
       <List>

@@ -9,19 +9,22 @@ import {
 import type { OverridableStringUnion } from '@mui/types';
 
 type CommonAlertProps = {
-  key: string;
   handleClose: () => void;
   children: ReactNode;
   severity: OverridableStringUnion<AlertColor, AlertPropsColorOverrides>;
 };
 
 export const CommonAlert = ({
-  key,
   handleClose,
   severity,
   children,
 }: CommonAlertProps) => (
-  <Snackbar key={key} open={true} autoHideDuration={6000} onClose={handleClose}>
+  <Snackbar
+    open={true}
+    autoHideDuration={6000}
+    onClose={handleClose}
+    anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+  >
     <Alert onClose={handleClose} severity={severity} variant="filled">
       {children}
     </Alert>
