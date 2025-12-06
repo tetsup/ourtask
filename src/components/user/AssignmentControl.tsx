@@ -1,7 +1,8 @@
 import { useLanguage } from '@/i18n/provider';
-import { List, ListItem } from '@mui/material';
+import { Grid } from '@mui/material';
+import { Delete as DeleteIcon } from '@mui/icons-material';
 import { Control, FieldValues, Path, useFieldArray } from 'react-hook-form';
-import { CommonButton } from '../common/parts/CommonButton';
+import { CommonButton, CommonIconButton } from '../common/parts/CommonButton';
 import { RoleSelect } from '../role/RoleSelect';
 import { SingleUserSelect } from './SingleUserSelect';
 
@@ -19,25 +20,33 @@ export const AssignmentControl = ({
     control,
   });
   return (
-    <List>
+    <>
       {fields.map((_, index) => (
-        <ListItem>
-          <SingleUserSelect
-            name={`assignments.${index}.assignee`}
-            control={control}
-            label={t.user.name}
-          />
-          <RoleSelect
-            name={`assignments.${index}.role`}
-            control={control}
-            label={t.common.role}
-          />
-          <CommonButton
-            onClick={() => {
-              remove(index);
-            }}
-          ></CommonButton>
-        </ListItem>
+        <Grid key={index} container columnSpacing={1} sx={{ width: '100%' }}>
+          <Grid size={6}>
+            <SingleUserSelect
+              name={`assignments.${index}.assignee`}
+              control={control}
+              label={t.user.name}
+            />
+          </Grid>
+          <Grid size={4}>
+            <RoleSelect
+              name={`assignments.${index}.role`}
+              control={control}
+              label={t.common.role}
+            />
+          </Grid>
+          <Grid size={2}>
+            <CommonIconButton
+              onClick={() => {
+                remove(index);
+              }}
+            >
+              <DeleteIcon />
+            </CommonIconButton>
+          </Grid>
+        </Grid>
       ))}
       <CommonButton
         onClick={() => {
@@ -46,6 +55,6 @@ export const AssignmentControl = ({
       >
         {t.common.append}
       </CommonButton>
-    </List>
+    </>
   );
 };

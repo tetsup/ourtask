@@ -19,7 +19,7 @@ type CommonSingleSelectProps = {
     TextField?: TextFieldProps;
   };
 } & RenderParams &
-  Omit<AutocompleteProps<any, false, false, false>, 'renderInput'>;
+  Omit<AutocompleteProps<any, false, any, false>, 'renderInput'>;
 
 export const CommonSingleSelect = ({
   label,
@@ -33,6 +33,7 @@ export const CommonSingleSelect = ({
     <Autocomplete
       {...props}
       fullWidth
+      disableClearable
       value={field.value}
       renderInput={(params) => (
         <CommonTextField
