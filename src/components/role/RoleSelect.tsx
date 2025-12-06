@@ -25,12 +25,16 @@ export const RoleSelect = ({ name, control, label }: RoleSelectProps<any>) => {
     <Controller
       name={name}
       control={control}
-      render={(props) => (
+      render={({ field, fieldState }) => (
         <CommonSingleSelect
-          {...props}
+          {...field}
           options={roles}
+          onChange={(_, v) => {
+            field.onChange(v);
+          }}
           renderValue={(v: (typeof roles)[number]) => t.role[v]}
           label={label}
+          errorInfo={fieldState.error}
         />
       )}
     />

@@ -8,6 +8,7 @@ import {
 import { useQuery } from '@/hooks/api';
 import { CommonSingleSelect } from '@/components/common/parts/CommonSingleSelect';
 import { UserOutput } from '@/db/types/user';
+import { UserChip } from './UserChip';
 
 type FieldByType<F extends FieldValues, T> = {
   [P in Path<F>]: T extends FieldPathValue<F, P> ? P : never;
@@ -32,15 +33,20 @@ export const SingleUserSelect = ({
     <Controller
       name={name}
       control={control}
-      render={(props) => (
+      render={({ field, fieldState }) => (
         <CommonSingleSelect
-          {...props}
+          {...field}
+          onChange={(_, v) => {
+            field.onChange(v);
+          }}
           options={data}
           onInputChange={(_, v) => {
             setQuery({ word: v });
           }}
           getOptionLabel={(user) => `${user.name}<${user.email}>`}
           label={label}
+          renderValue={(user) => <UserChip key={user._id} user={user} />}
+          errorInfo={fieldState.error}
         />
       )}
     />
