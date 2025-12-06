@@ -19,8 +19,9 @@ export const BackdropProvider = ({ children }: { children: ReactNode }) => {
     async (params: T) => {
       const key = generateRandomString(10);
       setKeys((current) => [...current, key]);
-      await execute(params);
+      const res = await execute(params);
       setKeys((current) => current.filter((k) => k !== key));
+      return res;
     };
   return (
     <backdropContext.Provider value={{ withBackdrop }}>

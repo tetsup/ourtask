@@ -70,10 +70,7 @@ const useCommonFetch = ({
         });
     }
   };
-  return options?.useBackdrop
-    ? async (queryData: any) =>
-        withBackdrop(async () => await commonFetch(queryData))
-    : commonFetch;
+  return options?.useBackdrop ? withBackdrop(commonFetch) : commonFetch;
 };
 
 export const usePostOrPut = ({ endpoint, _id, callback }: UsePostOrPutParams) =>
