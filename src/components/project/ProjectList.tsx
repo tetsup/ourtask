@@ -6,7 +6,7 @@ import { useQuery } from '@/hooks/api';
 import { ProjectInput, ProjectOutput } from '@/db/types/project';
 import { authClient } from '@/auth/client';
 import { CommonDialog } from '../common/layouts/CommonDialog';
-import { ProjectForm, ProjectFormProps } from './ProjectForm';
+import { ProjectForm } from './ProjectForm';
 import { NewProjectCard, ProjectCard } from './ProjectCard';
 
 const initValues = {
@@ -15,12 +15,15 @@ const initValues = {
   owners: [],
   assignments: [],
 };
+
+type FormParams = { defaultValues: ProjectInput<string>; _id?: string };
+
 export const ProjectList = () => {
   const { t } = useLanguage();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newFormValues, setNewFormValues] =
     useState<ProjectInput<string>>(initValues);
-  const [formProps, setFormProps] = useState<ProjectFormProps>({
+  const [formParams, setFormParams] = useState<FormParams>({
     defaultValues: newFormValues,
   });
   const { data: user } = authClient.useSession();
@@ -28,8 +31,8 @@ export const ProjectList = () => {
     setNewFormValues({ ...initValues, owners: user ? [user] : [] });
   }, [user]);
 
-  const handleDialogOpen = (props: ProjectFormProps) => {
-    setFormProps(props);
+  const handleDialogOpen = (params: FormParams) => {
+    setFormParams(params);
     setDialogOpen(true);
   };
   const handleNewDialogOpen = () => {
@@ -59,9 +62,16 @@ export const ProjectList = () => {
       <CommonDialog
         title={t.project.edit}
         open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
+        onClose={() => {
+          setDialogOpen(false);
+        }}
       >
-        <ProjectForm {...formProps} />
+        <ProjectForm
+          {...formParams}
+          postSubmit={async () => {
+            setDialogOpen(false);
+          }}
+        />
       </CommonDialog>
     </>
   );

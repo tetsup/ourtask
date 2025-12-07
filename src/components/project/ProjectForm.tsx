@@ -18,12 +18,21 @@ const clientPostProjectSchema = clientSchema(postProjectSchema);
 export type ProjectFormProps = {
   _id?: string;
   defaultValues: z.input<typeof clientPostProjectSchema>;
+  postSubmit?: () => Promise<void>;
 };
 
-export const ProjectForm = ({ _id, defaultValues }: ProjectFormProps) => {
+export const ProjectForm = ({
+  _id,
+  defaultValues,
+  postSubmit,
+}: ProjectFormProps) => {
   const { addLog } = useLogging();
   const { t } = useLanguage();
-  const postOrPut = usePostOrPut({ endpoint: '/api/project', _id });
+  const postOrPut = usePostOrPut({
+    endpoint: '/api/project',
+    _id,
+    callback: postSubmit,
+  });
   const form = useForm({
     resolver: zodResolver(clientPostProjectSchema),
     defaultValues,
