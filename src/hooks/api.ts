@@ -100,7 +100,7 @@ export const useQuery = <T extends any, Q extends object | null>({
     callback: async (resData: T) => {
       setData(resData);
     },
-    options: { useBackdrop },
+    options: { useBackdrop, useFailAlert: true },
   });
 
   const reload = () => {
