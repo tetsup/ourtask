@@ -5,7 +5,7 @@ import { serverSchema } from './rules/server';
 import { User } from './types/user';
 
 export type DbExecuteParams<T> = {
-  signInUser?: User | null;
+  signInUser: User | null;
   params: T;
   sessionSet: SessionSet;
 };
@@ -28,7 +28,7 @@ const readParams = async (req: NextRequest) => {
   try {
     if (req.method === 'GET') {
       const q = req.nextUrl.searchParams.get('q');
-      return q ? JSON.parse(q) : {};
+      return q && JSON.parse(q);
     }
     if (req.method === 'POST' || req.method === 'PUT') return await req.json();
   } catch (e: any) {

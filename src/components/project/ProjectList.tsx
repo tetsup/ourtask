@@ -27,9 +27,17 @@ export const ProjectList = () => {
     defaultValues: newFormValues,
   });
   const { data: user } = authClient.useSession();
+  const { data: projects, handleReload } = useQuery({
+    endpoint: '/api/project',
+    initData: [] as ProjectOutput<string>[],
+    initQuery: null,
+  });
   useEffect(() => {
     setNewFormValues({ ...initValues, owners: user ? [user] : [] });
   }, [user]);
+  useEffect(() => {
+    handleReload();
+  });
 
   const handleDialogOpen = (params: FormParams) => {
     setFormParams(params);
@@ -42,16 +50,13 @@ export const ProjectList = () => {
     const { _id, ...defaultValues } = data;
     handleDialogOpen({ _id, defaultValues });
   };
-  const { data: projects } = useQuery({
-    endpoint: '/api/project',
-    initData: [] as ProjectOutput<string>[],
-  });
   return (
     <>
       <List>
         <NewProjectCard onClick={handleNewDialogOpen} />
         {projects.map((project) => (
           <ProjectCard
+            key={project._id}
             project={project}
             onEdit={() => {
               handleEditDialogOpen(project);
@@ -70,6 +75,7 @@ export const ProjectList = () => {
           {...formParams}
           postSubmit={async () => {
             setDialogOpen(false);
+            handleReload();
           }}
         />
       </CommonDialog>

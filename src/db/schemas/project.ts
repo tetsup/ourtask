@@ -27,4 +27,4 @@ export const postProjectSchema: SchemaFuncBuilder<any, any> =
     });
 
 export const getProjectListSchema: SchemaFuncBuilder<any, any> = () => () =>
-  z.never();
+  z.null();

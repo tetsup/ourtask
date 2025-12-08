@@ -45,7 +45,7 @@ const useCommonFetch = ({
   const commonFetch = async (queryData: any) => {
     try {
       const url =
-        method === 'GET'
+        method === 'GET' && queryData
           ? `${endpoint}?${new URLSearchParams({ q: JSON.stringify(queryData) })}`
           : endpoint;
       const params = {
@@ -86,7 +86,7 @@ export const usePostOrPut = ({ endpoint, _id, callback }: UsePostOrPutParams) =>
     },
   });
 
-export const useQuery = <T extends any, Q extends object>({
+export const useQuery = <T extends any, Q extends object | null>({
   endpoint,
   initData,
   initQuery,
@@ -94,6 +94,7 @@ export const useQuery = <T extends any, Q extends object>({
 }: UseQueryParams<T, Q>) => {
   const [query, setQuery] = useState<Q | undefined>(initQuery);
   const [data, setData] = useState<T>(initData);
+  const [reload, setReload] = useState(false);
   const fetch = useCommonFetch({
     endpoint,
     method: 'GET',
@@ -103,9 +104,18 @@ export const useQuery = <T extends any, Q extends object>({
     options: { useBackdrop },
   });
 
+  const handleFetch = () => {
+    if (query === undefined) setData(initData);
+    else fetch(query);
+  };
   useEffect(() => {
-    if (!query) return;
-    fetch(query);
+    handleFetch();
   }, [query]);
-  return { data, setQuery };
+  useEffect(() => {
+    if (!reload) return;
+    handleFetch();
+    setReload(false);
+  }, [reload]);
+  const handleReload = () => setReload(true);
+  return { data, setQuery, handleReload };
 };

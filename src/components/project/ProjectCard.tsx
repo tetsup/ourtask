@@ -21,7 +21,7 @@ export const ProjectCard = ({ project, onEdit }: ProjectCardProps) => (
     </IconButton>
     <Typography variant="h6">{project.description}</Typography>
     {project.owners.map((owner) => (
-      <CommonAvatar user={owner} />
+      <CommonAvatar key={owner._id} user={owner} />
     ))}
     <CommonAvatarGroup
       users={project.assignments.map((assignment) => assignment.assignee)}

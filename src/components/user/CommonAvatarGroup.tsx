@@ -1,4 +1,4 @@
-import { AvatarGroup } from '@mui/material';
+import { AvatarGroup, Typography } from '@mui/material';
 import { UserOutput } from '@/db/types/user';
 import { CommonAvatar } from './CommonAvatar';
 
@@ -7,10 +7,13 @@ type CommonAvatarGroupProps = {
   max: number;
 };
 
-export const CommonAvatarGroup = ({ users, max }: CommonAvatarGroupProps) => (
-  <AvatarGroup max={max}>
-    {users.map((user) => (
-      <CommonAvatar user={user} />
-    ))}
-  </AvatarGroup>
-);
+export const CommonAvatarGroup = ({ users, max }: CommonAvatarGroupProps) =>
+  users ? (
+    <AvatarGroup max={max}>
+      {users.map((user) => (
+        <CommonAvatar key={user._id} user={user} />
+      ))}
+    </AvatarGroup>
+  ) : (
+    <Typography variant="h6">No Users</Typography>
+  );
