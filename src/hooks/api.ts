@@ -94,7 +94,6 @@ export const useQuery = <T extends any, Q extends object | null>({
 }: UseQueryParams<T, Q>) => {
   const [query, setQuery] = useState<Q | undefined>(initQuery);
   const [data, setData] = useState<T>(initData);
-  const [reload, setReload] = useState(false);
   const fetch = useCommonFetch({
     endpoint,
     method: 'GET',
@@ -104,18 +103,12 @@ export const useQuery = <T extends any, Q extends object | null>({
     options: { useBackdrop },
   });
 
-  const handleFetch = () => {
+  const reload = () => {
     if (query === undefined) setData(initData);
     else fetch(query);
   };
   useEffect(() => {
-    handleFetch();
+    reload();
   }, [query]);
-  useEffect(() => {
-    if (!reload) return;
-    handleFetch();
-    setReload(false);
-  }, [reload]);
-  const handleReload = () => setReload(true);
-  return { data, setQuery, handleReload };
+  return { data, setQuery, reload };
 };
