@@ -21,6 +21,8 @@ export const ja = {
     home: 'ホーム',
     append: '追加',
     role: '役割',
+    name: '名前',
+    description: '説明',
     openThe: (thing: string) => `${thing}を開く`,
     succeeded: (thing: string) => `${thing}に成功しました`,
     failed: (thing: string) => `${thing}に失敗しました`,
@@ -46,7 +48,7 @@ export const ja = {
   },
   project: {
     name: 'プロジェクト名',
-    description: '説明',
+    description: 'プロジェクトの説明',
     owners: '所有者',
     members: 'メンバー',
     new: '新規プロジェクト',

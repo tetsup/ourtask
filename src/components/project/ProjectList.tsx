@@ -1,13 +1,16 @@
 'use client';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { List } from '@mui/material';
 import { useLanguage } from '@/i18n/provider';
 import { useQuery } from '@/hooks/api';
 import { ProjectInput, ProjectOutput } from '@/db/types/project';
 import { authClient } from '@/auth/client';
+import { MenuProvider } from '@/contexts/Menu';
 import { CommonDialog } from '../common/layouts/CommonDialog';
 import { ProjectForm } from './ProjectForm';
 import { NewProjectCard, ProjectCard } from './ProjectCard';
+import { ProjectMenu } from './ProjectMenu';
 
 const initValues = {
   name: '',
@@ -19,6 +22,7 @@ const initValues = {
 type FormParams = { defaultValues: ProjectInput<string>; _id?: string };
 
 export const ProjectList = () => {
+  const { push } = useRouter();
   const { t } = useLanguage();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newFormValues, setNewFormValues] =
@@ -55,13 +59,21 @@ export const ProjectList = () => {
       <List>
         <NewProjectCard onClick={handleNewDialogOpen} />
         {projects.map((project) => (
-          <ProjectCard
+          <MenuProvider
             key={project._id}
-            project={project}
-            onEdit={() => {
-              handleEditDialogOpen(project);
-            }}
-          />
+            renderItems={() => (
+              <ProjectMenu
+                onEdit={() => {
+                  handleEditDialogOpen(project);
+                }}
+                onOpen={() => {
+                  push(`/project/${project._id}`);
+                }}
+              />
+            )}
+          >
+            <ProjectCard project={project} />
+          </MenuProvider>
         ))}
       </List>
       <CommonDialog

@@ -21,6 +21,8 @@ export const en = {
     home: 'Home',
     append: 'Append',
     role: 'Role',
+    name: 'Name',
+    description: 'description',
     openThe: (thing: string) => `Open the ${thing}`,
     succeeded: (thing: string) => `Succeeded to ${thing}`,
     failed: (thing: string) => `Failed to ${thing}`,
