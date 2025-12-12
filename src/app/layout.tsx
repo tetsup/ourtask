@@ -4,6 +4,7 @@ import { AlertProvider } from '@/contexts/Alert';
 import { BackdropProvider } from '@/contexts/BackDrop';
 import { LoggingProvider } from '@/contexts/Logging';
 import { LanguageProvider } from '@/i18n/provider';
+import { ThemeProvider } from '@/contexts/Theme';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -29,11 +30,13 @@ export default function RootLayout({
     <LoggingProvider maxLogs={100}>
       <LanguageProvider initialLang="ja">
         <html lang="ja">
-          <body className={`${geistSans.variable} ${geistMono.variable}`}>
-            <AlertProvider>
-              <BackdropProvider>{children}</BackdropProvider>
-            </AlertProvider>
-          </body>
+          <ThemeProvider>
+            <body className={`${geistSans.variable} ${geistMono.variable}`}>
+              <AlertProvider>
+                <BackdropProvider>{children}</BackdropProvider>
+              </AlertProvider>
+            </body>
+          </ThemeProvider>
         </html>
       </LanguageProvider>
     </LoggingProvider>
