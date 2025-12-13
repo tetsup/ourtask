@@ -6,6 +6,7 @@ import {
   BugReport as BugReportIcon,
 } from '@mui/icons-material';
 import { useLogging } from './Logging';
+import { authClient } from '@/auth/client';
 
 type FabMenuContext = {
   setPageMenu: (buttons: FabBarButtonParams[]) => void;
@@ -32,6 +33,7 @@ export const FabMenuProvider = ({ children }: FabBarProviderProps) => {
       key: 'signOut',
       children: <LogoutIcon />,
       tooltip: 'SignOut',
+      onClick: async () => await authClient.signOut(),
     },
     {
       key: 'userMenu',
