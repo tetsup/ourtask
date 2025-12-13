@@ -9,12 +9,10 @@ export const FormLayout = ({ children }: { children: ReactNode }) => (
       alignItems: 'center',
       justifyContent: 'center',
       height: '100vh',
-      backgroundColor: '#f0f0f0',
     }}
   >
     <Paper
       sx={{
-        backgroundColor: '#fff',
         padding: '20px',
         borderRadius: '10px',
         boxShadow: '0 0 10px rgba(0,0,0,0.1)',
