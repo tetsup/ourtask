@@ -6,12 +6,13 @@ type ModelParams = { collectionName: string; apiPath: string };
 
 type SchemaParams = SessionSet | void;
 
-type SchemaFunc<T extends SchemaParams, U extends any> = T extends void
-  ? z.Schema<U>
-  : (params: T) => z.Schema<U>;
+type SchemaFunc<T extends SchemaParams, U extends any> = (
+  params: T
+) => z.Schema<U>;
 
 type SchemaRules<T> = {
-  joinUserSchema: SchemaFunc<T, any>;
+  joinRefSchema: (model: ModelParams) => SchemaFunc<T, any>;
+  idSchema: z.Schema;
 };
 
 type SchemaFuncBuilder<T extends SchemaParams, U extends any> = (

@@ -2,9 +2,9 @@ import z from 'zod';
 
 const idSchema = z.string().regex(/^[a-fA-F0-9]{24}$/);
 
-const joinUserSchema = () => z.object({ _id: idSchema });
+const joinRefSchema = () => () => z.object({ _id: idSchema });
 
-const clientRules: SchemaRules<{}> = { joinUserSchema };
+const clientRules: SchemaRules<{}> = { idSchema, joinRefSchema };
 
 export const clientSchema = (baseSchema: SchemaFuncBuilder<any, any>) =>
-  baseSchema(clientRules)();
+  baseSchema(clientRules)({});

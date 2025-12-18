@@ -1,6 +1,5 @@
 import { ObjectId } from 'mongodb';
 import z from 'zod';
-import { User } from '../params/user';
 
 const idSchema: z.ZodType<ObjectId> = z.union([
   z
@@ -10,17 +9,19 @@ const idSchema: z.ZodType<ObjectId> = z.union([
   z.instanceof(ObjectId),
 ]);
 
-const joinUserSchema: SchemaFunc<SessionSet, any> = ({ db, session }) =>
-  z
-    .object({ _id: idSchema })
-    .refine(
-      async (v) =>
-        (await db
-          .collection(User.collectionName)
-          .findOne({ _id: v._id }, { session })) != null
-    );
+const joinRefSchema =
+  (model: ModelParams): SchemaFunc<SessionSet, any> =>
+  ({ db, session }) =>
+    z
+      .object({ _id: idSchema })
+      .refine(
+        async (v) =>
+          (await db
+            .collection(model.collectionName)
+            .findOne({ _id: v._id }, { session })) != null
+      );
 
-const serverRules: SchemaRules<SessionSet> = { joinUserSchema };
+const serverRules: SchemaRules<SessionSet> = { joinRefSchema, idSchema };
 
 export const serverSchema = (baseSchema: SchemaFuncBuilder<any, any>) =>
   baseSchema(serverRules);
